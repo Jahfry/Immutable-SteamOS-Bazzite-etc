@@ -485,7 +485,7 @@ Please read the notes before deciding to do these yourself.
    ```
    cd ~/Documents/source/keyd
    sudo steamos-readonly disable
-   make install                   # re-run the install to copy the previously compiled files
+   sudo make install                   # re-run the install to copy the previously compiled files
    ```
    Tested this on the Oct 2 2025 SteamOS image after an update. It doesn't "just work" as you still need to do the pacman-key and /etc/pacman.conf stuff at the top of this page to get 'make' installed. So just redo the initial instructions to trustall on the keys if you don't have a working 'make' command. But you shouldn't need to rebuild the keyd binary unless you want to look for a newer version. I'll clean this up again someday. 
 
