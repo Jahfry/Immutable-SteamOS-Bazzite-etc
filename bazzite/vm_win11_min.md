@@ -380,8 +380,13 @@ This guide is designed to create a lightweight, utility-focused Windows 11 Virtu
    ```powershell
    net use Z: \\sshfs\host_share /PERSISTENT:YES
    ```
+---
 
-**B. Run Utilities**
+**Human note:** At this point your VM is nice and tidy and ready for installing whatever things you absolutely needed to run on Windows. I'm honestly surprised it took me 9 months of dedicated Bazzite usage before I had to break down and install a Windows VM. 
 
-1. Install tools (e.g., AMUMSS).
-2. Point them to `Z:\` to edit your Linux Bazzite files.
+Examples:
+
+* AMUMSS for No Man's Sky (tried Bottles, way too complicated in the batch files, not worth the time)
+* Device firmware updaters (mice, keyboards, headsets, etc). However this VM is NOT configured to passthrough any devices. I'll work up a new page for that when I get it working. Note that for things like mouse/keyboard you're going to want a second device that you can use for input while passing through the one you'll be updating. 
+
+
