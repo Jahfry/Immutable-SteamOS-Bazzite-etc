@@ -1,4 +1,4 @@
-# Windows 11 Utility VM Master Guide
+# Guide: Windows 11 Utility VM on Bazzite / Fedora Ublue
 
 **Introduction**
 
