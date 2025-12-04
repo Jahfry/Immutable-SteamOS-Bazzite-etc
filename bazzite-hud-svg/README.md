@@ -2,6 +2,8 @@
 
 This package installs a desktop HUD for Bazzite (KDE Plasma) that displays the currently booted OSTree version, kernel info, and layered packages. It updates automatically on boot, on a timer, and instantly whenever a system update occurs.
 
+I didn't make this a full archive with installer, I'm just publishing something I used on my system with instructions on how to get it working. 
+
 ## File Manifest
 
 Ensure you have the following files available:
