@@ -21,7 +21,7 @@ NOTE: This will automatically update the display when the system detects a new u
 
 Example image:
 
-![bazzite-status.svg](https://github.com/Jahfry/Immutable-Linux-aka-SteamOS-Bazzite-etc/blob/main/bazzite-hud-svg/bazzite-status.svg)
+![bazzite-status.svg](https://github.com/Jahfry/Immutable-Linux-aka-SteamOS-Bazzite-etc/blob/main/bazzite/bazzite-hud-svg/bazzite-status.svg)
 
 ---
 
