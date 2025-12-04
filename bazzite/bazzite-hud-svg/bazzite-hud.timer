@@ -20,9 +20,9 @@
 Description=Hourly Bazzite HUD refresh
 
 [Timer]
-# Run 5 minutes after boot, then every hour
-OnBootSec=20sec
-OnUnitActiveSec=5h
+# Run on boot, then every hour
+OnStartupSec=10sec
+OnUnitActiveSec=1h
 
 [Install]
 WantedBy=timers.target
