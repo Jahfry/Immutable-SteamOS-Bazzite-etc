@@ -5,13 +5,13 @@ This package installs a desktop HUD for Bazzite (KDE Plasma) that displays the c
 ## File Manifest
 
 Ensure you have the following files available:
-*   `[bazzite-hud-svg.sh](./bazzite-hud-svg.sh)`
-*   `[bazzite-hud.service](./bazzite-hud.service)`
-*   `[bazzite-hud.timer](./bazzite-hud.timer)`
-*   `[bazzite-hud.path](./bazzite-hud.path)`
-*   `[bazzite-hud-trigger.service](./bazzite-hud-trigger.service)`
-*   `[bazzite-hud-trigger.path](./bazzite-hud-trigger.path)`
-*   `[this README](./README.md)`
+*   [bazzite-hud-svg.sh](./bazzite-hud-svg.sh)
+*   [bazzite-hud.service](./bazzite-hud.service)
+*   [bazzite-hud.timer](./bazzite-hud.timer)
+*   [bazzite-hud.path](./bazzite-hud.path)
+*   [bazzite-hud-trigger.service](./bazzite-hud-trigger.service)
+*   [bazzite-hud-trigger.path](./bazzite-hud-trigger.path)
+*   [this README](./README.md)
 
 NOTE: This will automatically update the display when the system detects a new upgrade has been staged / rebased, etc. However it will not update automatically when a metadata change has happened like pinning an ostree. It will be changed on the next reboot, after you manually run `bazzite-hud-svg.sh`, or after the 5 hour timer is up (you could always make the timer shorter, too).
 
