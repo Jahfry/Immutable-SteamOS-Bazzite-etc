@@ -1,127 +1,73 @@
-# Bazzite OSTree Status HUD - Installation Guide
+# Bazzite OSTree Status HUD
 
-This package installs a desktop HUD for Bazzite (KDE Plasma) that displays the currently booted OSTree version, kernel info, and layered packages. It updates automatically on boot, on a timer, and instantly whenever a system update occurs.
+This lightweight utility generates a transparent SVG overlay for Bazzite (Fedora Atomic) desktops. It displays the currently booted OSTree deployment, kernel version, pinned status, and layered packages.
 
-I didn't make this a full archive with installer, I'm just publishing something I used on my system with instructions on how to get it working. 
+This project came about during a time where Bazzite had an updated version that caused problems with my Nvidia GPU and I wanted to quickly see after booting if I was on the version I preferred. It mushroomed a bit from there but the end result became more useful. 
 
-## File Manifest
+Created with coding assistance from an LLM for speed. 
 
-Ensure you have the following files available:
-*   [bazzite-hud-svg.sh](./bazzite-hud-svg.sh)
-*   [bazzite-hud.service](./bazzite-hud.service)
-*   [bazzite-hud.timer](./bazzite-hud.timer)
-*   [bazzite-hud.path](./bazzite-hud.path)
-*   [bazzite-hud-trigger.service](./bazzite-hud-trigger.service)
-*   [bazzite-hud-trigger.path](./bazzite-hud-trigger.path)
-*   [this README](./README.md)
+## Example SVG
 
-NOTE: This will automatically update the display when the system detects a new upgrade has been staged / rebased, etc. However it will not update automatically when a metadata change has happened like pinning an ostree. It will be changed on the next reboot, after you manually run `bazzite-hud-svg.sh`, or after the 5 hour timer is up (you could always make the timer shorter, too).
+![Example Status](./status.svg)
 
----
+## Features
 
-Example image:
+* **Automated:** Updates on Boot, Login, System Updates, and Hourly.
+* **System Aware:** Includes a system-level trigger to detect OS updates immediately.
 
-![bazzite-status.svg](https://github.com/Jahfry/Immutable-Linux-aka-SteamOS-Bazzite-etc/blob/main/bazzite/bazzite-hud-svg/bazzite-status.svg)
+### NOTE:
 
----
+This will update on new upgrades being available and on reboot. It will *not* automatically trigger when you change ostree metadata like adding/removing pins. Not worth the extra effort, as if you really want to see the status after you make manual metadata changes you can just run the shell script manually. 
 
-## Step 1: User-Level Setup
-*These steps do not require sudo.*
+## Installation
 
-1.  **Install the Script**
-    Copy `bazzite-hud-svg.sh` to your local bin directory and make it executable:
+### Option 1: Quick Download (Archive)
+
+1. Download **[bazzite-hud.20251204.tar.gz](./bazzite-hud.20251204.tar.gz)**.
+2. Extract the archive:
     ```bash
-    mkdir -p ~/.local/bin
-    cp bazzite-hud-svg.sh ~/.local/bin/
-    chmod +x ~/.local/bin/bazzite-hud-svg.sh
+    tar -xzf bazzite-hud.20251204.tar.gz
     ```
+3. Go to the Install and Load section
 
-2.  **Install User Systemd Units**
-    Copy the three user-level units to the systemd config folder:
-    ```bash
-    mkdir -p ~/.config/systemd/user
-    cp bazzite-hud.service ~/.config/systemd/user/
-    cp bazzite-hud.timer ~/.config/systemd/user/
-    cp bazzite-hud.path ~/.config/systemd/user/
-    ```
+### Option 2: Manual Download
 
-3.  **Initialize the Relay File**
-    Create the dummy file used to signal updates between the system and your user session. This ensures permissions are correctly set to your user:
-    ```bash
-    touch ~/.cache/bazzite-ostree-trigger
-    ```
+Or ... download the files individually.
 
----
+* [bazzite-hud-svg.sh](./bazzite-hud-svg.sh)
+* [bazzite-hud.user.service](./bazzite-hud.user.service)
+* [bazzite-hud.user.timer](./bazzite-hud.user.timer)
+* [bazzite-hud-trigger.system.service](./bazzite-hud-trigger.system.service)
+* [bazzite-hud-trigger.system.path](./bazzite-hud-trigger.system.path)
 
-## Step 2: System-Level Setup
-*These steps require sudo privileges to watch the boot partition.*
+## Install and Load
 
-1.  **Install System Systemd Units**
-    Copy the trigger units to the system directory:
-    ```bash
-    sudo cp bazzite-hud-trigger.service /etc/systemd/system/
-    sudo cp bazzite-hud-trigger.path /etc/systemd/system/
-    ```
-
----
-
-## Step 3: Activation
-
-1.  **Reload Systemd Daemons**
-    Refresh both systemd instances to recognize the new files:
-    ```bash
-    systemctl --user daemon-reload
-    sudo systemctl daemon-reload
-    ```
-
-2.  **Enable and Start User Units**
-    This sets up the script to run on boot, on a timer, and when the relay file is touched:
-    ```bash
-    systemctl --user enable --now bazzite-hud.timer
-    systemctl --user enable --now bazzite-hud.path
-    ```
-
-3.  **Enable and Start System Watcher**
-    This sets up the root-level watcher to detect OS updates and touch the relay file:
-    ```bash
-    sudo systemctl enable --now bazzite-hud-trigger.path
-    ```
-
-4.  **Generate Initial Image**
-    Run the script manually once to generate the first SVG file:
-    ```bash
-    ~/.local/bin/bazzite-hud-svg.sh
-    ```
-
----
-
-## Step 4: KDE Widget Setup
-
-1.  Right-click the Desktop -> **Enter Edit Mode**.
-2.  Add a **"Media Frame"** (or Picture Frame) widget to the desktop.
-3.  **Configure the Widget:**
-    *   **Path:** Browse to `~/Pictures/bazzite-status.svg`.
-    *   **Refresh:** Set to a reasonable interval (e.g., 10 seconds) or leave default (it usually detects file changes automatically).
-4.  **Appearance:**
-    *   Attempt to set **Frame Style** or **Background** to "None" or "No Frame" to enable transparency.
-    *   Resize the widget to be tall enough to display the full list.
-
----
-
-## Verification
-
-To verify the automation works, simulate a system update by creating a dummy file in the boot loader directory.
-
-**Run this test command:**
 ```bash
-sudo touch /boot/loader/entries/test-trigger.conf
+cp ./bazzite-hud-svg.sh ~/.local/bin/
+chmod +x ~/.local/bin/bazzite-hud.svg
+cp ./bazzite-hud.user.service ~/.config/systemd/user/
+cp ./bazzite-hud.user.timer ~/.config/systemd/user/
+cp ./bazzite-hud-trigger.system.service /etc/systemd/system/
+cp ./bazzite-hud-trigger.system.path /etc/systemd/system/
+# 1. Reload Configuration
+systemctl --user daemon-reload
+sudo systemctl daemon-reload
+# 2. Enable User Timer (Updates on login & hourly)
+systemctl --user enable --now bazzite-hud.user.timer
+# 3. Enable System Watcher (Updates on OS upgrade)
+sudo systemctl enable --now bazzite-hud-trigger.system.path
+# 4. Generate first image
+~/.local/bin/bazzite-hud-svg.sh
 ```
 
-Result:
-Within a few seconds, the Last checked timestamp on your desktop widget should update to the current time.
+## Widget Configuration
 
-Cleanup:
+This script works best with the standard Media Frame widget in KDE Plasma, but should be usable on other systems if you have a widget capable of displaying an image and polling for changes to the image.
 
-```
-sudo rm /boot/loader/entries/test-trigger.conf
-```
+1. Right-click desktop -> Add Widgets... -> Media Frame
+2. Right-click the widget -> Configure Media Frame
+3. General Settings:
+    * Paths: Add File -> ~/Pictures/Wallpapers/bazzite-hud/status.svg
+    * Update Interval: 10 seconds (Crucial for detecting updates, only polls system until a change is seen for minimal impact, increase time as you see fit)
+    * Fill Mode: Preserve Aspect Fit.
+4. Appearance: Disable background/frame for a transparent look.

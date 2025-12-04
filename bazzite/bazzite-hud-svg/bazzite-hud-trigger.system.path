@@ -1,0 +1,16 @@
+# ==============================================================================
+# Bazzite HUD SVG Generator
+# Generates an SVG displaying rpm-ostree status for desktop widgets.
+# Source: https://github.com/Jahfry/Immutable-SteamOS-Bazzite-etc/tree/main/bazzite/bazzite-hud-svg
+# ==============================================================================
+
+[Unit]
+Description=Bazzite HUD Watcher (System)
+
+[Path]
+# Catches major updates (Kernel/OS downloads) ... will NOT catch metadata changes like pinning/unpinning
+PathModified=/boot/loader/entries
+
+[Install]
+WantedBy=multi-user.target
+

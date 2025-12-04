@@ -1,0 +1,14 @@
+# ==============================================================================
+# Bazzite HUD SVG Generator
+# Generates an SVG displaying rpm-ostree status for desktop widgets.
+# Source: https://github.com/Jahfry/Immutable-SteamOS-Bazzite-etc/tree/main/bazzite/bazzite-hud-svg
+# ==============================================================================
+
+[Unit]
+Description=Bazzite HUD Generator (User)
+
+[Service]
+Type=oneshot
+# We explicitly call bash to avoid execution errors
+ExecStart=/usr/bin/bash %h/.local/bin/bazzite-hud-svg.sh
+
