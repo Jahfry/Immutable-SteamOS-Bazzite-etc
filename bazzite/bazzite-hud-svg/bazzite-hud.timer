@@ -1,0 +1,28 @@
+    
+# ostree desktop message ... displayed in KDE "Media Frame" widget
+# files:
+# ~/.local/bin/bazzite-hud-svg.sh
+#
+# User Units (Execution & Listening):
+# ~/.config/systemd/user/bazzite-hud.service
+# ~/.config/systemd/user/bazzite-hud.timer
+# ~/.config/systemd/user/bazzite-hud.path
+# ~/.cache/bazzite-ostree-trigger  (Relay file)
+#
+# System Units (Detection & Signaling):
+# /etc/systemd/system/bazzite-hud-trigger.path
+# /etc/systemd/system/bazzite-hud-trigger.service
+#
+# Output:
+# ~/Pictures/bazzite-status.svg
+
+[Unit]
+Description=Hourly Bazzite HUD refresh
+
+[Timer]
+# Run 5 minutes after boot, then every hour
+OnBootSec=20sec
+OnUnitActiveSec=5h
+
+[Install]
+WantedBy=timers.target
