@@ -5,4 +5,4 @@ Anything I'm doing related to gaming Linux distributions. SteamOS, Bazzite, etc.
 
 
 * [Bazzite / Fedora Atomic (Ublue): setting up a minimal Windows 11 VM for game moddding utilities that require it](./bazzite/vm_win11_min.md)
-* [Bazzite / any rpm-ostree immutable distro: SVG status display for desktop showing `rpm-ostree status` information](./bazzite-hud-svg/)
+* [Bazzite / any rpm-ostree immutable distro: SVG status display for desktop showing `rpm-ostree status` information](./bazzite/bazzite-hud-svg/)
