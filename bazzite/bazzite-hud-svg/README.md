@@ -23,10 +23,10 @@ This will update on new upgrades being available and on reboot. It will *not* au
 
 ### Option 1: Quick Download (Archive)
 
-1. Download **[bazzite-hud.20251204_185939.tar.gz)**.
+1. Download **[bazzite-hud.20251204_190215.tar.gz)**.
 2. Extract the archive to a temporary location:
     ```bash
-    tar -xzf bazzite-hud.20251204_185939.tar.gz
+    tar -xzf bazzite-hud.20251204_190215.tar.gz
     ```
 ## Install and Load
 
