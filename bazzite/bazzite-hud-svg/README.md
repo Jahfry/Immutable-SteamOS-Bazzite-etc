@@ -10,6 +10,7 @@ Created with coding assistance from an LLM for speed.
 
 * Release 2025-12-04 ... initial version
 * Release 2025-12-23 ... fix hardcoded ostree parsing (earlier version would have only worked if using same base I was using, new version should work regardless of your bazzite base)
+* Release 2025-12-24 ... actually pushed the correct version, 2025-12-23 was accidentally the old code repeated
 
 
 ## Example SVG
