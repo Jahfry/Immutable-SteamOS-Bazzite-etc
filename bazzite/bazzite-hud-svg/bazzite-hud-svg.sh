@@ -5,6 +5,9 @@
 # Generates an SVG displaying rpm-ostree status for desktop widgets.
 # Source: https://github.com/Jahfry/Immutable-SteamOS-Bazzite-etc/tree/main/bazzite/bazzite-hud-svg
 # ==============================================================================
+# Release 2025-12-04 ... initial version
+# Release 2025-12-23 ... fix hardcoded ostree parsing
+# Release 2025-12-24 ... Agnostic refactor (Fixes "1 entry BACKUP" bug)
 
 # --- CONFIGURATION ---
 HUD_DIR="$HOME/Pictures/Wallpapers/bazzite-hud"
@@ -30,19 +33,24 @@ TIMESTAMP=$(date "+%Y-%m-%d %H:%M:%S")
 RAW_STATUS=$(/usr/bin/rpm-ostree status)
 
 SVG_CONTENT=""
-Y_POS=190 
+Y_POS=190
 LINE_HEIGHT=36
 GAP_HEIGHT=45
 
+# State Tracking
 CURRENT_TYPE=""
 CURRENT_VER=""
 CURRENT_DATE=""
 CURRENT_LAYERS=""
 CURRENT_PINNED=0
-IS_FIRST=1
+SEEN_BOOTED=0
+HAS_DATA=0
 
 flush_block() {
-    if [ -z "$CURRENT_VER" ]; then return; fi
+    # Only flush if we actually collected data in the previous loop
+    if [ $HAS_DATA -eq 0 ]; then return; fi
+
+    # Determine Label and Color
     if [[ "$CURRENT_TYPE" == "BOOTED" ]]; then
         COLOR="$C_BOOTED"
         LABEL="➤ BOOTED:"
@@ -53,10 +61,18 @@ flush_block() {
         COLOR="$C_OTHER"
         LABEL="  BACKUP:"
     fi
-    SVG_CONTENT="${SVG_CONTENT}<text x='15' y='${Y_POS}' font-family='monospace' font-size='22' font-weight='bold' fill='${COLOR}' xml:space='preserve'>${LABEL} ${CURRENT_VER}</text>"
+
+    # Fallback if version wasn't parsed
+    DISPLAY_VER="${CURRENT_VER:-Unknown}"
+
+    SVG_CONTENT="${SVG_CONTENT}<text x='15' y='${Y_POS}' font-family='monospace' font-size='22' font-weight='bold' fill='${COLOR}' xml:space='preserve'>${LABEL} ${DISPLAY_VER}</text>"
     Y_POS=$((Y_POS + LINE_HEIGHT))
-    SVG_CONTENT="${SVG_CONTENT}<text x='15' y='${Y_POS}' font-family='monospace' font-size='18' fill='${C_SUBTITLE}' xml:space='preserve'>  Date:   ${CURRENT_DATE}</text>"
-    Y_POS=$((Y_POS + LINE_HEIGHT))
+
+    if [ -n "$CURRENT_DATE" ]; then
+        SVG_CONTENT="${SVG_CONTENT}<text x='15' y='${Y_POS}' font-family='monospace' font-size='18' fill='${C_SUBTITLE}' xml:space='preserve'>  Date:   ${CURRENT_DATE}</text>"
+        Y_POS=$((Y_POS + LINE_HEIGHT))
+    fi
+
     if [ -n "$CURRENT_LAYERS" ]; then
         SVG_CONTENT="${SVG_CONTENT}<text x='15' y='${Y_POS}' font-family='monospace' font-size='18' fill='${C_LAYERS}' xml:space='preserve'>  Layers: ${CURRENT_LAYERS}</text>"
         Y_POS=$((Y_POS + LINE_HEIGHT))
@@ -64,40 +80,78 @@ flush_block() {
         SVG_CONTENT="${SVG_CONTENT}<text x='15' y='${Y_POS}' font-family='monospace' font-size='18' fill='#555555' xml:space='preserve'>  Layers: (None)</text>"
         Y_POS=$((Y_POS + LINE_HEIGHT))
     fi
+
     if [ "$CURRENT_PINNED" -eq 1 ]; then
         SVG_CONTENT="${SVG_CONTENT}<text x='15' y='${Y_POS}' font-family='monospace' font-size='18' fill='${C_PINNED}' xml:space='preserve'>  ● pinned</text>"
         Y_POS=$((Y_POS + LINE_HEIGHT))
     fi
+
     Y_POS=$((Y_POS + GAP_HEIGHT))
 }
 
 while IFS= read -r line; do
     clean_line=$(echo "$line" | xargs)
-    if [[ "$line" == *"ostree-image"* ]]; then
-        flush_block
-        CURRENT_VER=""
-        CURRENT_DATE=""
-        CURRENT_LAYERS=""
-        CURRENT_PINNED=0
-        if [[ "$line" == *"●"* ]]; then CURRENT_TYPE="BOOTED"; IS_FIRST=0
-        elif [ $IS_FIRST -eq 1 ]; then CURRENT_TYPE="STAGED"; IS_FIRST=0
-        else CURRENT_TYPE="ROLLBACK"; fi
-    fi
+
+    # 1. Skip empty lines and global headers
+    if [ -z "$clean_line" ]; then continue; fi
+    if [[ "$clean_line" == State:* ]] || [[ "$clean_line" == Deployments:* ]]; then continue; fi
+
+    # 2. Identify ATTRIBUTES (Version, Layers, Pinned)
     if [[ "$clean_line" == Version:* ]]; then
         CURRENT_VER=$(echo "$clean_line" | awk '{print $2}')
         CURRENT_DATE=$(echo "$clean_line" | cut -d'(' -f2 | cut -d')' -f1 | cut -d'T' -f1)
+        continue
     fi
+
     if [[ "$clean_line" == LayeredPackages:* ]]; then
         CURRENT_LAYERS=$(echo "$clean_line" | sed 's/LayeredPackages: //')
+        continue
     fi
-    if [[ "$clean_line" == "Pinned: yes" ]]; then CURRENT_PINNED=1; fi
+
+    if [[ "$clean_line" == "Pinned: yes" ]]; then
+        CURRENT_PINNED=1
+        continue
+    fi
+
+    # Skip technical attributes we don't display
+    if [[ "$clean_line" == Digest:* ]] || [[ "$clean_line" == BaseCommit:* ]] || [[ "$clean_line" == GPGSignature:* ]]; then
+        continue
+    fi
+
+    # 3. HEADER DETECTION
+    # Any line that survives to here is a Deployment Header (e.g. "ostree-unverified-registry...")
+
+    # Flush the PREVIOUS block now that we hit a new one
+    flush_block
+
+    # Reset variables for the new block
+    CURRENT_VER=""
+    CURRENT_DATE=""
+    CURRENT_LAYERS=""
+    CURRENT_PINNED=0
+    HAS_DATA=1
+
+    # Determine the type of this new block
+    if [[ "$line" == *"●"* ]]; then
+        CURRENT_TYPE="BOOTED"
+        SEEN_BOOTED=1
+    elif [ $SEEN_BOOTED -eq 0 ]; then
+        # If we haven't seen the booted entry yet, this must be STAGED (pending)
+        CURRENT_TYPE="STAGED"
+    else
+        # If we passed the booted entry, this is a rollback/backup
+        CURRENT_TYPE="BACKUP"
+    fi
+
 done <<< "$RAW_STATUS"
+
+# Flush the final block detected in the loop
 flush_block
 
 # --- DIRECT WRITE ---
 cat > "$OUTPUT_FILE" <<EOF
 <svg width="600" height="950" xmlns="http://www.w3.org/2000/svg">
-<!-- 
+<!--
   Bazzite HUD SVG Generator
   Source: https://github.com/Jahfry/Immutable-SteamOS-Bazzite-etc/tree/main/bazzite/bazzite-hud-svg
 -->
