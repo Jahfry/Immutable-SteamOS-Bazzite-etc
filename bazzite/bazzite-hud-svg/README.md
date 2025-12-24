@@ -6,6 +6,12 @@ This project came about during a time where Bazzite had an updated version that 
 
 Created with coding assistance from an LLM for speed. 
 
+## Releases:
+
+* Release 2025-12-04 ... initial version
+* Release 2025-12-23 ... fix hardcoded ostree parsing (earlier version would have only worked if using same base I was using, new version should work regardless of your bazzite base)
+
+
 ## Example SVG
 
 ![Example Status](./status.svg)
@@ -23,10 +29,10 @@ This will update on new upgrades being available and on reboot. It will *not* au
 
 ### Option 1: Quick Download (Archive)
 
-1. Download **[bazzite-hud.20251204_195518.tar.gz](./bazzite-hud.20251204_195518.tar.gz)**. (note: this is just a convenient way to grab the files, the individual files in the git repo are in the .tar.gz file)
+1. Download **[bazzite-hud.20251223_205024.tar.gz](./bazzite-hud.20251223_205024.tar.gz)**. (note: this is just a convenient way to grab the files, the individual files in the git repo are in the .tar.gz file)
 2. Extract the archive:
     ```bash
-    tar -xzf bazzite-hud.20251204_195518.tar.gz
+    tar -xzf bazzite-hud.20251223_205024.tar.gz
     ```
 ## Install and Load
 
